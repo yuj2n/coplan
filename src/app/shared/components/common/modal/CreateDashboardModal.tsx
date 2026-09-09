@@ -1,7 +1,6 @@
 'use client'
 
 import { useModalStore } from '@store/useModalStore'
-import { useQueryClient } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 
 import { useDashboardForm } from '@/app/shared/hooks/useDashboardForm'
@@ -9,7 +8,6 @@ import { useDashboardForm } from '@/app/shared/hooks/useDashboardForm'
 import DashboardForm from '../../dashboard/DashboardForm'
 
 export default function CreateDashboardModal() {
-  const queryClient = useQueryClient()
   const { modalType, closeModal } = useModalStore()
   const isModalOpen = modalType === 'createDashboard'
 
@@ -31,24 +29,6 @@ export default function CreateDashboardModal() {
 
   if (!isModalOpen) return null
 
-  // 쿼리 무효화 포함한 제출 핸들러
-  const handleSubmitWithInvalidation = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ) => {
-    // 원래 handleSubmit 실행
-    await handleSubmit(e)
-
-    // 사이드바 무한스크롤 쿼리 무효화
-    queryClient.invalidateQueries({
-      queryKey: ['dashboards'],
-    })
-
-    // 내 대시보드 페이지 쿼리 무효화
-    queryClient.invalidateQueries({
-      queryKey: ['myDashboards'],
-    })
-  }
-
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       closeModal()
@@ -68,10 +48,7 @@ export default function CreateDashboardModal() {
           formData={formData}
           onChange={handleChange}
           onColorSelect={handleColorSelect}
-          onSubmit={(e) => {
-            handleSubmitWithInvalidation(e)
-            closeModal()
-          }}
+          onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           submitText="생성"
           showCancelButton
