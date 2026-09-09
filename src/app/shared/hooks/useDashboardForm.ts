@@ -2,7 +2,8 @@
 import authHttpClient from '@api/axios'
 import { DASHBOARD_COLORS } from '@constants/colors'
 import { getTeamId } from '@lib/getTeamId'
-import { showError } from '@lib/toast'
+import { showError, showSuccess } from '@lib/toast'
+import { useModalStore } from '@store/useModalStore'
 import { useSelectedDashboardStore } from '@store/useSelectedDashboardStore'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -18,6 +19,7 @@ const teamId = getTeamId()
 export function useDashboardForm(mode: Mode) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { closeModal } = useModalStore() // 모달 제어 함수
   const { selectedDashboard, setSelectedDashboard } =
     useSelectedDashboardStore()
 
@@ -74,6 +76,17 @@ export function useDashboardForm(mode: Mode) {
           `/${teamId}/dashboards`,
           formData,
         )
+
+        showSuccess('대시보드가 생성되었습니다.')
+
+        // 사이드바 & 내 대시보드 쿼리 무효화
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['dashboards'] }),
+          queryClient.invalidateQueries({ queryKey: ['myDashboards'] }),
+        ])
+
+        // 성공했을 때만 모달 닫고 이동
+        closeModal()
         router.push(`/dashboard/${response.data.id}`)
       } else if (mode === 'edit' && selectedDashboard?.id) {
         const response = await authHttpClient.put(
@@ -83,10 +96,11 @@ export function useDashboardForm(mode: Mode) {
         const data = response.data
         setSelectedDashboard(data)
 
-        // 캐시 무효화 및 페이지 강제 갱신
+        showSuccess('대시보드 정보가 수정되었습니다.')
         await queryClient.invalidateQueries({ queryKey: ['dashboards'] })
         router.refresh()
 
+        closeModal()
         router.push(`/dashboard/${data.id}/edit`)
       }
     } catch (error) {
