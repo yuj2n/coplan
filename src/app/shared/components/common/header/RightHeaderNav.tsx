@@ -1,25 +1,24 @@
 'use client'
 
 import { useModalStore } from '@store/useModalStore'
-import { useSelectedDashboardStore } from '@store/useSelectedDashboardStore'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 import NavItem from './NavItem'
 
 export default function RightHeaderNav() {
   const { openModal } = useModalStore()
-  const { selectedDashboard } = useSelectedDashboardStore()
   const pathname = usePathname()
+  const params = useParams<{ id?: string }>()
 
   const isMyDashboardPage = pathname === '/mydashboard'
 
   return (
     <nav className="Text-black flex gap-6 whitespace-nowrap text-sm">
-      {!isMyDashboardPage && (
+      {!isMyDashboardPage && params.id && (
         <>
           <NavItem
             as="link"
-            href={`/dashboard/${selectedDashboard?.id}/edit`}
+            href={`/dashboard/${params.id}/edit`}
             iconSrc="/images/config.svg"
             label="관리"
           />
