@@ -40,7 +40,7 @@ export default function CreateDashboardModal() {
 
     // 사이드바 무한스크롤 쿼리 무효화
     queryClient.invalidateQueries({
-      queryKey: ['dashboards', 'infinite'],
+      queryKey: ['dashboards'],
     })
 
     // 내 대시보드 페이지 쿼리 무효화
