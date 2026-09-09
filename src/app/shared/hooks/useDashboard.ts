@@ -1,4 +1,3 @@
-// hooks/useDashboard.ts
 'use client'
 
 import authHttpClient from '@api/axios'
