@@ -4,7 +4,7 @@ import { Dashboard } from '@/app/shared/types/dashboard'
 
 type SelectedDashboardState = {
   selectedDashboard: Dashboard | null
-  setSelectedDashboard: (dashboard: Dashboard) => void
+  setSelectedDashboard: (dashboard: Dashboard | null) => void
 }
 
 export const useSelectedDashboardStore = create<SelectedDashboardState>(
