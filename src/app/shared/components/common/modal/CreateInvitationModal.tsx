@@ -1,8 +1,8 @@
 'use client'
 
-import { inviteUser } from '@dashboard/api/invitation'
+import { getInvitations, inviteUser } from '@dashboard/api/invitation'
 import { useModalStore } from '@store/useModalStore'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -16,34 +16,49 @@ export default function CreateInvitationModal() {
   const teamId = process.env.NEXT_PUBLIC_TEAM_ID ?? ''
   const queryClient = useQueryClient()
 
+  // 이미 불러오고 있던 초대 목록
+  const { data: invitations } = useQuery({
+    queryKey: ['invitations', teamId, String(dashboardId)],
+    queryFn: () => getInvitations(Number(dashboardId)),
+    enabled: !!dashboardId,
+  })
+
+  const { mutate: inviteMutate, isPending } = useMutation({
+    mutationFn: inviteUser,
+    onSuccess: () => {
+      // 초대 후 캐시 무효화 (초대 내역 새로고침)
+      queryClient.invalidateQueries({
+        queryKey: ['invitations', teamId, String(dashboardId)],
+      })
+      showSuccess('초대가 완료되었습니다.')
+      closeModal()
+    },
+    onError: (err: unknown) => {
+      const error = err as AxiosError<{ message: string }>
+      showError(error?.response?.data?.message || '초대에 실패하였습니다.')
+    },
+  })
+
   function handleBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) {
       closeModal()
     }
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!email) return
+    if (!email || !dashboardId) return
 
-    try {
-      if (!dashboardId) {
-        throw new Error('대시보드 ID가 없습니다.')
-      }
-
-      await inviteUser({ email, dashboardId: Number(dashboardId) })
-
-      // ✅ 초대 후 캐시 무효화 (초대 내역 새로고침)
-      queryClient.invalidateQueries({
-        queryKey: ['invitations', teamId, String(dashboardId)],
-      })
-
-      showSuccess('초대가 완료되었습니다.')
-      closeModal()
-    } catch (err: unknown) {
-      const error = err as AxiosError<{ message: string }>
-      showError(error?.response?.data?.message || '초대에 실패하였습니다.')
+    // 이미 초대된 이메일인지 클라이언트에서 체크
+    const alreadyInvited = invitations?.some(
+      (inv) => inv.invitee.email === email,
+    )
+    if (alreadyInvited) {
+      showError('이미 초대된 이메일입니다.')
+      return
     }
+
+    inviteMutate({ email, dashboardId: Number(dashboardId) })
   }
 
   if (modalType !== 'invite') return null
@@ -75,6 +90,7 @@ export default function CreateInvitationModal() {
               placeholder="초대 이메일을 입력해주세요."
               className="Border-section w-full rounded-8 px-12 py-10 text-16 outline-none"
               required
+              disabled={isPending}
             />
           </div>
 
@@ -82,15 +98,17 @@ export default function CreateInvitationModal() {
             <button
               type="button"
               onClick={closeModal}
+              disabled={isPending}
               className="Border-btn Text-black h-54 w-full rounded-8 px-16 py-10 text-16 font-semibold mobile:h-40 mobile:text-12 tablet:h-48 tablet:w-full tablet:text-14"
             >
               취소
             </button>
             <button
               type="submit"
-              className="BG-violet h-54 w-full rounded-8 px-16 py-10 text-16 font-semibold text-white hover:opacity-90 mobile:h-40 mobile:text-12 tablet:h-48 tablet:w-full tablet:text-14"
+              disabled={isPending}
+              className="BG-violet h-54 w-full rounded-8 px-16 py-10 text-16 font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 mobile:h-40 mobile:text-12 tablet:h-48 tablet:w-full tablet:text-14"
             >
-              초대
+              {isPending ? '초대 중...' : '초대'}
             </button>
           </div>
         </form>
