@@ -54,7 +54,7 @@ export default function InvitedDashboardRow({
   return (
     <>
       {/* 데스크톱/태블릿 테이블 레이아웃 */}
-      <div className="mobile-wide:hidden grid grid-cols-3 items-center gap-20 border-b border-gray-100 py-20 pl-36 pr-32">
+      <div className="grid grid-cols-3 items-center gap-20 border-b border-gray-100 py-20 pl-36 pr-32 mobile-wide:hidden">
         {/* 대시보드 이름 */}
         <span className="Text-black text-16">
           {invitation.dashboard.title || '제목 없음'}
@@ -70,14 +70,14 @@ export default function InvitedDashboardRow({
           <button
             onClick={handleAccept}
             disabled={isProcessing}
-            className="BG-blue tablet-wide:w-72 tablet-wide:h-30 tablet-wide:text-12 flex h-32 w-70 items-center justify-center rounded-8 text-14 font-medium text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="BG-blue flex h-32 w-70 items-center justify-center rounded-8 text-14 font-medium text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 tablet-wide:h-30 tablet-wide:w-72 tablet-wide:text-12"
           >
             {isProcessing ? '처리 중' : '수락'}
           </button>
           <button
             onClick={handleReject}
             disabled={isProcessing}
-            className="BG-white Border-blue Text-blue tablet-wide:w-72 tablet-wide:h-30 tablet-wide:text-12 flex h-32 w-70 items-center justify-center rounded-8 border text-14 font-medium transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="BG-white Border-blue Text-blue flex h-32 w-70 items-center justify-center rounded-8 border text-14 font-medium transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 tablet-wide:h-30 tablet-wide:w-72 tablet-wide:text-12"
           >
             {isProcessing ? '처리 중' : '거절'}
           </button>
@@ -85,7 +85,7 @@ export default function InvitedDashboardRow({
       </div>
 
       {/* 모바일 카드 레이아웃 */}
-      <div className="mobile-wide:block mb-12 hidden rounded-8 p-16">
+      <div className="mb-12 hidden rounded-8 p-16 mobile-wide:block">
         {/* 이름 */}
         <div className="mb-8 flex items-center gap-8">
           <span className="Text-gray-light text-14 font-medium">이름</span>
