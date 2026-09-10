@@ -7,7 +7,7 @@
     "noEmit": true,
     "esModuleInterop": true, // CommonJS 모듈도 ESModules처럼 import 가능
     "module": "esnext",
-    "moduleResolution": "node", // Node.js 방식으로 모듈 탐색
+    "moduleResolution": "bundler", // 최신 표준 방식으로 모듈 탐색
     "resolveJsonModule": true, // JSON 파일 import 가능
     "isolatedModules": true, // Next.js 필수: 모듈 단위로 타입 검사
     "jsx": "preserve",
@@ -19,7 +19,8 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".", // 절대 경로 기준: 프로젝트 루트
+    // 없어도./src/... 형태로 루트 기준 상대 경로로 정상 동작
+    // "baseUrl": ".", // 절대 경로 기준: 프로젝트 루트
     "paths": {
       // alias 설정
       "@/*": ["./src/*"],
