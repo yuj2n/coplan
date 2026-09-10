@@ -49,10 +49,14 @@ export default function CreateInvitationModal() {
     e.preventDefault()
     if (!email || !dashboardId) return
 
+    console.log('invitations:', invitations) 
+  console.log('입력한 email:', email)
+
     // 이미 초대된 이메일인지 클라이언트에서 체크
     const alreadyInvited = invitations?.some(
       (inv) => inv.invitee.email === email,
     )
+    console.log('alreadyInvited:', alreadyInvited) 
     if (alreadyInvited) {
       showError('이미 초대된 이메일입니다.')
       return
